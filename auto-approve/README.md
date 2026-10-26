@@ -1,12 +1,12 @@
 # auto-approve
 
-The approval workflow runs from `micosjanf/micosjanf`. It is temporarily manual-only. Run it from the Actions tab without inputs. Every run uses dry-run mode and makes no approvals or PR comments.
+The approval workflow runs every five minutes from `micosjanf/micosjanf`. You can also run it from the Actions tab without inputs. Both scheduled and manual runs submit approvals for eligible PRs. GitHub can delay or drop scheduled runs.
 
-After you push this change to `main`, open Actions, select Auto approve, and select Run workflow on `main`. The final log summary must contain `"dry_run": true`, `"approved": 0`, and `"failed": 0`. After this test passes, remove `--dry-run` from `approve.yml` to enable approvals. Restore the five-minute schedule only when you are ready to resume automatic approvals.
+To run it manually, open Actions, select Auto approve, and select Run workflow on `main`. Read the final log summary. A successful run reports `"dry_run": false` and `"failed": 0`. The approval count depends on the eligible PRs.
 
 Edit `config.json` to change the author and repository owner allowlists. Both allowlists must match. The PR must be open and must directly request a review from `micosjanf`. Team requests alone do not qualify. The owner comes from the base repository.
 
-Set the `APPROVER_PAT` repository secret in `micosjanf/micosjanf`. Use a classic PAT owned by `micosjanf` with the `repo` scope. The account needs write access to each target repository. Only the approval step receives this token. In the approval workflow, `GITHUB_TOKEN` has read access for checkout. Checkout does not retain credentials.
+Set the `APPROVER_PAT` repository secret in `micosjanf/micosjanf`. Use an OAuth token or classic PAT owned by `micosjanf` with the `repo` scope. The account needs write access to each target repository. Only the approval step receives this token. In the approval workflow, `GITHUB_TOKEN` has read access for checkout. Checkout does not retain credentials.
 
 Each approval specifies the head SHA. The workflow skips a PR if `micosjanf` already approved that head. The approval on the PR is the record. The approval workflow stores no approval records and creates no commits in this repository, for either public or private PRs.
 

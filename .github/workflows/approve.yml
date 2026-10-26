@@ -1,6 +1,9 @@
 name: Auto approve
 
-on: workflow_dispatch
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,7 +28,7 @@ jobs:
           persist-credentials: false
       - name: Run tests
         run: python3 -m unittest discover -s tests -v
-      - name: Inspect pull requests
+      - name: Approve pull requests
         env:
           APPROVER_PAT: ${{ secrets.APPROVER_PAT }}
-        run: python3 approve.py --dry-run
+        run: python3 approve.py
