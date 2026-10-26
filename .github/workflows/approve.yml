@@ -1,0 +1,31 @@
+name: Auto approve
+
+on: workflow_dispatch
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: auto-approve
+
+concurrency:
+  group: auto-approve-v2
+  cancel-in-progress: false
+
+jobs:
+  approve:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Run tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Inspect pull requests
+        env:
+          APPROVER_PAT: ${{ secrets.APPROVER_PAT }}
+        run: python3 approve.py --dry-run

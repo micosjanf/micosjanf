@@ -1,0 +1,52 @@
+name: Keep scheduled workflows active
+
+on:
+  schedule:
+    - cron: '0 3 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: auto-approve
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+
+jobs:
+  keepalive:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Update keepalive timestamp
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          trap 'printf "%s\n" "Keepalive update failed. The run remains successful."; exit 0' ERR
+          date -u +'%Y-%m-%dT%H:%M:%SZ' > keepalive
+          git add -- keepalive
+          if git diff --cached --quiet; then
+            printf '%s\n' 'Keepalive timestamp is unchanged.'
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -s -m 'Keep scheduled workflows active'
+          if ! GH_TOKEN="$GITHUB_TOKEN" git -c credential.helper= \
+            -c 'credential.helper=!gh auth git-credential' \
+            push origin HEAD:main > /dev/null 2>&1; then
+            printf '%s\n' 'Keepalive push failed. The run remains successful.'
+            exit 0
+          fi
+          printf '%s\n' 'Keepalive timestamp was pushed.'
