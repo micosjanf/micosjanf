@@ -1,6 +1,6 @@
 # micosjanf-auto-approve
 
-This Cloudflare Worker approves pull requests for `micosjanf`. A Cron Trigger runs it every five minutes. The Worker has no HTTP route.
+This Cloudflare Worker approves pull requests for `micosjanf`. A Cron Trigger runs it every two minutes. The Worker has no HTTP route.
 
 Each run does these steps:
 
