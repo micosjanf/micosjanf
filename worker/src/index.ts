@@ -1,5 +1,5 @@
 const REVIEWER = "micosjanf";
-const AUTHORS = ["samzong", "zhsama"];
+const AUTHORS = ["samzong", "zhsama", "zyssyz123", "mrzhuh"];
 const API = "https://api.github.com";
 
 type Env = { APPROVER_PAT: string };
